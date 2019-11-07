@@ -1,6 +1,6 @@
 <?php
 $bedrag = floatval($argv[1]);
-
+$restbedrag = $bedrag;
 $euroeenheden = array(
     500,
     200,
@@ -13,14 +13,6 @@ $euroeenheden = array(
     1,
 );
 
-$restbedrag = $bedrag;
-foreach($euroeenheden as $value) {
-    if ($restbedrag >= $value) {
-        $aantalKeer = floor($restbedrag / $value);
-        $restbedrag = fmod($restbedrag, $value);
-        echo "$aantalKeer X $value euro" . PHP_EOL;
-    }
-}
 $centeenheden = array(
     50,
     20,
@@ -28,30 +20,39 @@ $centeenheden = array(
     5,  
 );
 
-function roundUpToAny($n) {
-    $afgerondTiental = round($n, -1);
-    if ($afgerondTiental > $n) {
-        $afgerondVijftal = $afgerondTiental - 5;
-    } else {
-        $afgerondVijftal = $afgerondTiental + 5;
+function euroBerekenaar($euroeenheden, $restbedrag) {
+    foreach($euroeenheden as $value) {
+        if ($restbedrag >= $value) {
+            $aantalKeer = floor($restbedrag / $value);
+            $restbedrag = fmod($restbedrag, $value);
+            echo "$aantalKeer X $value euro" . PHP_EOL;
+        }
     }
-    $afstandtotTiental = abs($afgerondTiental - $n);
-    $afstandTotVijftal = abs($afgerondVijftal - $n);
-    if ($afstandTotTiental > $afstandTotVijftal) {
-        return $afgerondVijftal;
-    } else {
-        return $afgerondTiental;
-    }
+    return $restbedrag;
 }
-$restbedrag *= 100;
-$restbedrag = roundUpToAny($restbedrag);
-$restbedrag = round($restbedrag, 0);
-$restbedrag = intval($restbedrag);
-foreach($centeenheden as $value) {
-    if ($restbedrag >= $value) {
-        $aantalKeer1 = floor($restbedrag / $value);
-        $restbedrag = fmod($restbedrag, $value);
-        echo "$aantalKeer1 X $value cent" . PHP_EOL;
-    }
-} 
+
+function roundUpToAny($restbedrag) {
+    $restbedrag = round(($restbedrag * 100) / 5) * 5 / 100;
+    return $restbedrag;
+}
+
+function centBerekenaar($centeenheden, $restbedrag) {
+    $restbedrag = roundUpToAny($restbedrag);
+    $restbedrag *= 100;
+    foreach($centeenheden as $value) {
+        if ($restbedrag >= $value) {
+            $aantalKeer1 = floor($restbedrag / $value);
+            $restbedrag = fmod($restbedrag, $value);
+            echo "$aantalKeer1 X $value cent" . PHP_EOL;
+        }   
+    } 
+}
+
+if(is_numeric($bedrag)) {
+    $restbedrag = euroBerekenaar($euroeenheden, $restbedrag);
+    $restbedrag = centBerekenaar($centeenheden, $restbedrag);
+} else {
+    echo "Fek off grappenmaker";
+    exit;
+}
 ?>
